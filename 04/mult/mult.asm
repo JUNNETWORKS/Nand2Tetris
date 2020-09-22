@@ -8,34 +8,28 @@
 // 0 <= R0 <= R1
 
 // Put your code here.
-@sum  // Aレジスタに sum という変数の値を入れる. sum変数の値(アドレス)は自動的にユニークなものがアセンブラから付けられる
-M = 0  // M = Memory[A]
 
-// ループの回数を記録
-@R1
-D = M
-@loop_count 
-M = D
+// R2に合計値を入れるので0で初期化
+@R2
+M = 0
 
 (LOOP)
-    @loop_count 
+    // ループの条件判定
+    @R1
     D = M
-    @LOOP
-    D;JGT  // loop_count が0より上ならLOOPに戻る
-    
+    @END
+    D;JLE  // R1の値が0以下ならループ終了
+
     @R0
     D = M
-    @sum
-    M = M + D  // sum = sum + R0
+    @R2
+    M = M + D  // R2 = R2 + R0
     
-    @loop_count
+    @R1
     M = M - 1
-
-// 結果をR2に入れる
-@sum
-D = M
-@R2
-M = D
+    
+    @LOOP
+    0;JMP
 (END)
     @END
     0;JMP  // 無限ループ
