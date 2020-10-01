@@ -29,22 +29,14 @@ CHIP Memory {
     PARTS:
     // Put your code here:
 
-    // Data Memory
-    Mux(a=load, b=false, sel=address[0], out=loaddata);
-    RAM16K(in=in, load=loaddata, address=address[1..14], out=outdata);
+    Mux(a=load, b=false, sel=address[14], out=loadData);
+    RAM16K(in=in, load=loadData, address=address[0..13], out=outData);
+
+    Mux(a=false, b=load, sel=address[14], out=loadScreen);
+    Screen(in=in, load=loadScreen, address=address[0..12], out=outScreen);
     
-    // Screen Memory Mapped I/O
-    // 8K = 2^13
-    Mux(a=false, b=load, sel=address[0], out=loadscreen);  // そもそもスクリーンに対してのloadなのか?
-    DMux(in=loadscreen, sel=address[2], a=load0, b=load1);
-    RAM4K(in=in, load=load0, address=address[3..14], out=out0);
-    RAM4K(in=in, load=load1, address=address[3..14], out=out1);
-    Mux16(a=out0, b=out1, sel=address[2], out=outscreen);
+    Keyboard(out=outKbd);
 
-    // Keyboard Memory Mapped I/O is readonly.
-    Register(in=false, load=false, out=outkeyboard);
-
-    Mux16(a=outscreen, b=outkeyboard, sel=address[1], out=outio);
-
-    Mux16(a=outdata, b=outio, sel=address[0], out=out);
+    Mux16(a=outScreen, b=outKbd, sel=address[13], out=outIO);
+    Mux16(a=outData, b=outIO, sel=address[14], out=out);
 }
