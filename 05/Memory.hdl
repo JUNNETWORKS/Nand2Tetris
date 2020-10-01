@@ -28,4 +28,17 @@ CHIP Memory {
 
     PARTS:
     // Put your code here:
+
+    // Data Memory
+    RAM16K(in=in, load=load, address=address[1..14], out=outdata);
+    
+    // Screen Memory Mapped I/O
+    DMux(in=load, sel=address[2], a=load0, b=load1);
+    RAM4K(in=in, load=load0, address=address[3..14], out=out0);
+    RAM4K(in=in, load=load1, address=address[3..14], out=out1);
+    Mux16(a=out0, b=out1, sel=address[2], out=outscreen);
+
+    // Keyboard Memory Mapped is readonly. So, we don't have to implement it.
+
+    Mux16()
 }
