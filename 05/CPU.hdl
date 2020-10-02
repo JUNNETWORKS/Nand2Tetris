@@ -28,7 +28,7 @@
 CHIP CPU {
 
     IN  inM[16],         // M value input  (M = contents of RAM[A])
-        instruction[16], // Instruction for execution
+        instruction[16], // Instruction for execution  // i xx a cccccc ddd jjj
         reset;           // Signals whether to re-start the current
                          // program (reset==1) or continue executing
                          // the current program (reset==0).
@@ -40,4 +40,37 @@ CHIP CPU {
 
     PARTS:
     // Put your code here:
+
+    Not(in=instruction[15], out=notI);  // Not(i)
+
+    // A Register
+    Mux16(a=instruction, b=outALU, sel=instruction[15], out=inputA);
+    Or(a=instruction[5], b=notI, out=loadA);
+    ARegister(in=inputA, load=loadA, out=dataA, out[0..14]=addressM);
+
+    // D Register
+    And(a=instruction[4], b=instruction[15], out=loadD);
+    DRegister(in=outALU, load=loadD, out=inputX);
+
+    // writeM
+    And(a=instruction[3], b=instruction[15], out=writeM);
+
+    // A or Memory[A]
+    Mux16(a=dataA, b=inM, sel=instruction[12], out=inputY);
+
+    // ALU
+    ALU(x=inputX, y=inputY, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=outALU, out=outM, zr=outZr, ng=outNg);
+
+    // Program Counter
+    Not(in=outNg, out=notNg);
+    Not(in=outZr, out=notZr);
+    And(a=notNg, b=notZr, out=outPs);  // outPositive
+    Mux(a=false, b=outNg, sel=instruction[2], out=j1Out);  // j1  (outALU < 0)
+    Mux(a=false, b=outZr, sel=instruction[1], out=j2Out);  // j2  (outALU = 0)
+    Mux(a=false, b=outPs, sel=instruction[0], out=j3Out);  // j3  (outALU > 0)
+    Or(a=j1Out, b=j2Out, out=orOut1);
+    Or(a=orOut1, b=j3Out, out=orOut2);
+    And(a=instruction[15], b=orOut2, out=jmpFlag);
+    Mux(a=jmpFlag, b=true, sel=reset, out=loadPC);  // reset=1 の時は PC の load は常に 1
+    PC(in=dataA, load=loadPC, inc=true, reset=reset, out[0..14]=pc);
 }
