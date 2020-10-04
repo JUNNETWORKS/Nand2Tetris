@@ -39,8 +39,6 @@ func main() {
 		return
 	}
 
-	fmt.Printf("%#v\n", symbolTable)
-
 	code := NewCode()
 	for i, command := range parser.Commands {
 		if command.Type == L_COMMAND {
@@ -56,4 +54,5 @@ func main() {
 			log.Fatal(err)
 		}
 	}
+	fmt.Printf("%#v\n", symbolTable)
 }

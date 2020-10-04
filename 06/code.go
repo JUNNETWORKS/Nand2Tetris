@@ -8,9 +8,10 @@ import (
 // Code : Command構造体を元にバイナリコードを生成する構造体
 // Hackのアセンブリ言語のニーモニックをバイナリコードへ変換する
 type Code struct {
-	DestTable map[string]string
-	CompTable map[string]string
-	JumpTable map[string]string
+	RAMAddress int // 変数にアドレスを割り当てる時に使う
+	DestTable  map[string]string
+	CompTable  map[string]string
+	JumpTable  map[string]string
 }
 
 // NewCode : 各バイナリ命令テーブル登録済みのCode構造体のポインタを返す
@@ -66,6 +67,7 @@ func NewCode() *Code {
 		"JLE":  "110",
 		"JMP":  "111",
 	}
+	code.RAMAddress = 16 // 変数にアドレスを割り当てる時に使う
 	return code
 }
 
@@ -121,8 +123,14 @@ func (code *Code) Assemble(command *Command) (string, error) {
 			}
 			bin = strconv.FormatInt(i, 2)
 		} else {
-			addr := symbolTable.GetAddress(command.Value)
-			bin = strconv.FormatInt(int64(addr), 2)
+			if symbolTable.Contains(command.Value) {
+				addr := symbolTable.GetAddress(command.Value)
+				bin = strconv.FormatInt(int64(addr), 2)
+			} else {
+				symbolTable.AddEntry(command.Value, code.RAMAddress) // 変数にアドレスを割り当てる時に使う
+				bin = strconv.FormatInt(int64(code.RAMAddress), 2)   // 変数にアドレスを割り当てる時に使う
+				code.RAMAddress++                                    // 変数にアドレスを割り当てる時に使う
+			}
 		}
 		// 15桁0埋め
 		for i := 0; i < 15-len(bin); i++ {
