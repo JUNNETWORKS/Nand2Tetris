@@ -15,4 +15,12 @@ func main() {
 	for i, command := range parser.Commands {
 		fmt.Printf("LINE%d:\t%#v\n", i, command)
 	}
+	code := NewCode()
+	for i, command := range parser.Commands {
+		binaryInstruction, err := code.Assemble(command)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Printf("%d:\t%s\n", i, binaryInstruction)
+	}
 }
