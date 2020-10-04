@@ -17,6 +17,7 @@ func main() {
 	for i, command := range parser.Commands {
 		fmt.Printf("LINE%d:\t%#v\n", i, command)
 	}
+	err := os.Remove("output.hack")
 	hackFile, err := os.OpenFile("output.hack", os.O_WRONLY|os.O_CREATE, 0666)
 	defer hackFile.Close()
 	if err != nil {
