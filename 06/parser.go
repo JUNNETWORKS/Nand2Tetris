@@ -147,6 +147,7 @@ func NewParser(filePath string) (*Parser, error) {
 	// currentRamAddress := 16
 	for fileScanner.Scan() {
 		line := fileScanner.Text()
+		line = strings.ReplaceAll(line, " ", "")
 		fmt.Println(line)
 		instruction := Parse(line)
 		if instruction != nil {
