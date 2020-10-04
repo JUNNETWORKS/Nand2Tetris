@@ -55,6 +55,9 @@ func Parse(line string) *Command {
 		} else if r == ';' {
 			instruction.Comp = string(tmp)
 			tmp = tmp[:0] // tmp を空に (capはそのまま)
+			if len(instruction.Dest) == 0 {
+				instruction.Dest = "null"
+			}
 			nextArea = "jump"
 		} else {
 			tmp = append(tmp, byte(r))
@@ -63,6 +66,7 @@ func Parse(line string) *Command {
 
 	if nextArea == "comp" {
 		instruction.Comp = string(tmp)
+		instruction.Jump = "null"
 		instruction.Type = C_COMMAND
 	} else if nextArea == "jump" {
 		instruction.Jump = string(tmp)
