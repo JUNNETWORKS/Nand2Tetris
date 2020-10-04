@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// parser : Parserの主な機能は各アセンブリコマンドをその基本要素(フィールドとシンボル)に分解することである.
 type parser interface {
 	HasMoreCommands() bool
 	Advance()
