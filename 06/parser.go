@@ -22,7 +22,7 @@ type parser interface {
 // Parse : 行を解析して, Commandオブジェクトのポインタを返す
 func Parse(line string) *Command {
 	// Remove spaces
-	line = strings.TrimSpace(line)
+	line = strings.ReplaceAll(line, " ", "")
 
 	// 空行だったらすぐ返す
 	if len(line) == 0 {
@@ -32,6 +32,12 @@ func Parse(line string) *Command {
 	// Comment
 	if line[0:2] == "//" {
 		return nil
+	}
+
+	// コメントは事前に消しておく
+	commentIdx := strings.Index(line, "//")
+	if commentIdx > 0 {
+		line = line[:commentIdx]
 	}
 
 	instruction := new(Command)
@@ -107,9 +113,24 @@ func NewParser(filePath string) (*Parser, error) {
 	}
 	defer file.Close()
 
-	parser := new(Parser)
-
+	// create ROM symbol table
 	fileScanner := bufio.NewScanner(file)
+	// currentRomAddress := 0
+	// for fileScanner.Scan() {
+	// 	line := fileScanner.Text()
+	// 	line = strings.TrimSpace(line)
+	// 	if line[0] == '(' {
+	// 		symbol := strings.TrimSuffix(line, ")")
+	// 		symbolTable.AddEntry(symbol, currentRomAddress)
+	// 	} else {
+	// 		currentRomAddress++
+	// 	}
+	// }
+
+	// parse commands
+	file.Seek(0, 0)
+	parser := new(Parser)
+	// currentRamAddress := 16
 	for fileScanner.Scan() {
 		line := fileScanner.Text()
 		fmt.Println(line)
