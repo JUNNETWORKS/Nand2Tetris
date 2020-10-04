@@ -67,7 +67,7 @@ func NewCode() *Code {
 		"JLE":  "110",
 		"JMP":  "111",
 	}
-	code.RAMAddress = 16 // 変数にアドレスを割り当てる時に使う
+	code.RAMAddress = 16
 	return code
 }
 
@@ -127,9 +127,9 @@ func (code *Code) Assemble(command *Command) (string, error) {
 				addr := symbolTable.GetAddress(command.Value)
 				bin = strconv.FormatInt(int64(addr), 2)
 			} else {
-				symbolTable.AddEntry(command.Value, code.RAMAddress) // 変数にアドレスを割り当てる時に使う
-				bin = strconv.FormatInt(int64(code.RAMAddress), 2)   // 変数にアドレスを割り当てる時に使う
-				code.RAMAddress++                                    // 変数にアドレスを割り当てる時に使う
+				symbolTable.AddEntry(command.Value, code.RAMAddress)
+				bin = strconv.FormatInt(int64(code.RAMAddress), 2)
+				code.RAMAddress++
 			}
 		}
 		// 15桁0埋め
