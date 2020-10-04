@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
+	"os"
 )
 
 func main() {
@@ -15,6 +17,12 @@ func main() {
 	for i, command := range parser.Commands {
 		fmt.Printf("LINE%d:\t%#v\n", i, command)
 	}
+	hackFile, err := os.OpenFile("output.hack", os.O_WRONLY|os.O_CREATE, 0666)
+	defer hackFile.Close()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	code := NewCode()
 	for i, command := range parser.Commands {
 		binaryInstruction, err := code.Assemble(command)
@@ -22,5 +30,9 @@ func main() {
 			fmt.Println(err)
 		}
 		fmt.Printf("%d:\t%s\n", i, binaryInstruction)
+		_, err = hackFile.WriteString(fmt.Sprintf("%s\n", binaryInstruction))
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
