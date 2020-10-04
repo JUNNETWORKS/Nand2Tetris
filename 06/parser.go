@@ -35,18 +35,13 @@ func Parse(line string) *Command {
 	// Remove spaces
 	line = strings.ReplaceAll(line, " ", "")
 
+	// コメントは事前に消しておく
+	line = RemoveComment(line)
+
 	// 空行だったらすぐ返す
 	if len(line) == 0 {
 		return nil
 	}
-
-	// Comment
-	if line[0:2] == "//" {
-		return nil
-	}
-
-	// コメントは事前に消しておく
-	line = RemoveComment(line)
 
 	instruction := new(Command)
 
@@ -57,7 +52,7 @@ func Parse(line string) *Command {
 		return instruction
 	}
 
-	// C命令 or ラベル
+	// C命令
 	var tmp []byte
 	nextArea := ""
 
@@ -86,7 +81,6 @@ func Parse(line string) *Command {
 		instruction.Jump = string(tmp)
 		instruction.Type = C_COMMAND
 	} else {
-		// TODO: ラベル対応
 		instruction.Type = L_COMMAND
 	}
 	return instruction
