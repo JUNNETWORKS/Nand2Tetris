@@ -144,7 +144,6 @@ func NewParser(filePath string) (*Parser, error) {
 	file.Seek(0, 0)
 	fileScanner = bufio.NewScanner(file)
 	parser := new(Parser)
-	// currentRamAddress := 16
 	for fileScanner.Scan() {
 		line := fileScanner.Text()
 		line = strings.ReplaceAll(line, " ", "")
