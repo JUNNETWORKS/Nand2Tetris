@@ -113,11 +113,17 @@ func (code *Code) Assemble(command *Command) (string, error) {
 
 	if command.Type == A_COMMAND {
 		binInstruction += "0"
-		i, err := strconv.ParseInt(command.Value, 10, 64) // 文字列からint64に変換
-		if err != nil {
-			return "", err
+		var bin string
+		if command.Value[0] >= '0' && command.Value[0] <= '9' {
+			i, err := strconv.ParseInt(command.Value, 10, 64) // 文字列からint64に変換
+			if err != nil {
+				return "", err
+			}
+			bin = strconv.FormatInt(i, 2)
+		} else {
+			addr := symbolTable.GetAddress(command.Value)
+			bin = strconv.FormatInt(int64(addr), 2)
 		}
-		bin := strconv.FormatInt(i, 2)
 		// 15桁0埋め
 		for i := 0; i < 15-len(bin); i++ {
 			binInstruction += "0"

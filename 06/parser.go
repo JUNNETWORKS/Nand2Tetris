@@ -19,6 +19,17 @@ type parser interface {
 	Jump() string
 }
 
+func RemoveComment(line string) string {
+	line = strings.ReplaceAll(line, " ", "")
+	commentIdx := strings.Index(line, "//")
+	if commentIdx > 0 {
+		line = line[:commentIdx]
+	} else if commentIdx == 0 {
+		line = "" // コメントだけの行の時
+	}
+	return line
+}
+
 // Parse : 行を解析して, Commandオブジェクトのポインタを返す
 func Parse(line string) *Command {
 	// Remove spaces
@@ -35,10 +46,7 @@ func Parse(line string) *Command {
 	}
 
 	// コメントは事前に消しておく
-	commentIdx := strings.Index(line, "//")
-	if commentIdx > 0 {
-		line = line[:commentIdx]
-	}
+	line = RemoveComment(line)
 
 	instruction := new(Command)
 
@@ -115,20 +123,26 @@ func NewParser(filePath string) (*Parser, error) {
 
 	// create ROM symbol table
 	fileScanner := bufio.NewScanner(file)
-	// currentRomAddress := 0
-	// for fileScanner.Scan() {
-	// 	line := fileScanner.Text()
-	// 	line = strings.TrimSpace(line)
-	// 	if line[0] == '(' {
-	// 		symbol := strings.TrimSuffix(line, ")")
-	// 		symbolTable.AddEntry(symbol, currentRomAddress)
-	// 	} else {
-	// 		currentRomAddress++
-	// 	}
-	// }
+	currentRomAddress := 0
+	for fileScanner.Scan() {
+		line := fileScanner.Text()
+		line = strings.ReplaceAll(line, " ", "")
+		line = RemoveComment(line)
+		if len(line) == 0 {
+			continue
+		}
+		fmt.Printf("ROM: %d\t%s\n", currentRomAddress, line)
+		if line[0] == '(' {
+			symbol := strings.TrimSuffix(strings.TrimPrefix(line, "("), ")")
+			symbolTable.AddEntry(symbol, currentRomAddress)
+			fmt.Printf("%s:\t%d\n", symbol, currentRomAddress)
+		} else {
+			currentRomAddress++
+		}
+	}
 
-	// parse commands
 	file.Seek(0, 0)
+	fileScanner = bufio.NewScanner(file)
 	parser := new(Parser)
 	// currentRamAddress := 16
 	for fileScanner.Scan() {
